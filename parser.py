@@ -3,6 +3,12 @@ from bs4 import BeautifulSoup as bSoup
 import csv
 
 
+def write_csv(data):
+    with open('companies.csv', 'a') as f:
+        writer = csv.writer(f)
+        writer.writerow((data['name'], data['url']))
+
+
 def get_html(url):
     r = requests.get(url)
     if r.ok:
@@ -16,12 +22,15 @@ def get_page_data(html):
     for company in companies:
         name = company.find('a').find('h5').text
         company_url = 'https://www.work.ua' + company.find('a').get('href')
-        print(company_url)
+        data = {'name': name, 'url': company_url}
+        print(data)
+        write_csv(data)
 
 
 def main():
     url = 'https://www.work.ua/ru/jobs/by-company/'
-    get_page_data(get_html(url))
+    html = get_html(url)
+    get_page_data(html)
 
 
 if __name__ == '__main__':
