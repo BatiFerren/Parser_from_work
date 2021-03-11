@@ -3,14 +3,13 @@ from bs4 import BeautifulSoup as bSoup
 import csv
 
 
-#TODO: Need to change writer for write Dictionary. Use csv.DictWriter()
-'''def write_csv(data):
-    with open('companies.csv', 'a') as f:
-        columns = ['name', 'url']
-        writer = csv.DictWriter(f, fieldnames=columns)
-        #writer.writeheader()
-        writer.writerow(data)
-'''
+def write_csv(list_of_companies_data):
+    with open('companies.csv', 'w', newline='') as csvfile:
+        fieldnames = ['name', 'website', 'phone']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for item in list_of_companies_data:
+            writer.writerow(item)
 
 
 def get_html(url):
@@ -23,7 +22,7 @@ def get_html(url):
 def get_page_data(html):
     company_list = []
     soup = bSoup(html, 'lxml')
-    companies = soup.find('ul', class_ = 'logotypes-squares').find_all('li')
+    companies = soup.find('ul', class_='logotypes-squares').find_all('li')
     for company in companies:
         name = company.find('a').find('h5').text
         company_url = 'https://www.work.ua' + company.find('a').get('href')
@@ -39,12 +38,12 @@ def get_company_data(list_of_companies):
         if new_request.ok:
             company_soup = bSoup(new_request.text, 'lxml')
             name_of_company = company_soup.find('h1').text
-            website_of_company = company_soup.find('span', class_ = 'website-company')
+            website_of_company = company_soup.find('span', class_='website-company')
             if website_of_company:
                 website = website_of_company.find('a').get('href')
             else:
                 website = None
-            glyphicon_phone = company_soup.find('span', class_ = 'glyphicon-phone')
+            glyphicon_phone = company_soup.find('span', class_='glyphicon-phone')
             if glyphicon_phone:
                 tel_contact = glyphicon_phone.find_parent('p')
             else:
@@ -59,7 +58,6 @@ def get_company_data(list_of_companies):
                 tel = None
             data_company = {'name': name_of_company, 'website': website, 'phone': tel}
             list_of_companies_data.append(data_company)
-            #print(data_company)
     return list_of_companies_data
 
 
@@ -69,7 +67,7 @@ def main():
     all_list = get_page_data(html)
     print_list = get_company_data(all_list)
     print(print_list)
-
+    write_csv(print_list)
 
 
 if __name__ == '__main__':
